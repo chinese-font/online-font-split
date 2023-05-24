@@ -1,0 +1,14 @@
+{
+    "name": "web-font-online",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {},
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@konghayao/cn-font-split": "^3.4.1"
+    }
+}
