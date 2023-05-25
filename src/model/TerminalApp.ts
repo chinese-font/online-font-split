@@ -1,7 +1,7 @@
 import { WebContainer, WebContainerProcess } from "@webcontainer/api";
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
-
+import "xterm/css/xterm.css";
 export class TerminalApp {
     public instance!: WebContainer;
     public terminal!: Terminal;

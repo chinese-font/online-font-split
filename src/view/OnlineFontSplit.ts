@@ -1,13 +1,9 @@
-import { LitElement, html, css } from "lit";
+import "./styles/index.css";
+import { LitElement, html } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { SystemApp } from "../model/SystemApp";
 import { DirEnt } from "@webcontainer/api";
-import {
-    fileOpen,
-    directoryOpen,
-    fileSave,
-    supported,
-} from "browser-fs-access";
+import { fileOpen, fileSave, supported } from "browser-fs-access";
 import { asyncLock } from "../utils/asyncLock";
 import { sleep } from "../utils/sleep";
 if (supported) {
@@ -17,31 +13,33 @@ if (supported) {
 }
 declare global {
     interface HTMLElementTagNameMap {
-        "cn-font-split": SystemUI;
+        "cn-font-split": OnlineFontSplit;
     }
 }
 @customElement("cn-font-split")
-export class SystemUI extends LitElement {
-    static styles = css``;
-
-    @query("#terminal") terminalEl!: HTMLDivElement;
+export class OnlineFontSplit extends LitElement {
+    @query(".terminal") terminalEl!: HTMLDivElement;
     @property() sys = new SystemApp();
+    @state() inputFile: DirEnt<string>[] = [];
+    @state() outputFile: DirEnt<string>[] = [];
+
+    /** 第一次渲染时进行程序注入 */
     firstUpdated() {
         const terminalEl = this.terminalEl;
         this.sys.init(terminalEl).then(() => this.refresh());
     }
-    @state() inputFile: DirEnt<string>[] = [];
-    @state() outputFile: DirEnt<string>[] = [];
-    @property() async refresh(delay = 0) {
+
+    /** 立即同步文件系统 */
+    @property()
+    async refresh(delay = 0) {
         if (delay > 0) await sleep(delay);
         this.inputFile = await this.sys.getInputFiles();
         this.outputFile = await this.sys.getOutputFolder();
     }
 
-    @asyncLock({
-        notice() {
-            console.log("正在努力分包中，请稍等");
-        },
+    /** 打包一个文件 */
+    @asyncLock(function (this: OnlineFontSplit) {
+        console.log("正在努力分包中，请稍等");
     })
     async bundle(path: string) {
         this.refresh();
@@ -97,8 +95,8 @@ export class SystemUI extends LitElement {
     }
     render() {
         return html`
-            <section>
-                <nav id="terminal"></nav>
+            <section class="online-font-split">
+                <nav class="terminal"></nav>
                 <ul>
                     <h1>需要打包的文件</h1>
                     ${this.renderInput()}

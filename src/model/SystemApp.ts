@@ -56,6 +56,21 @@ export class SystemApp extends TerminalApp {
         });
         return items.filter((i) => i.isDirectory());
     }
+    async mapOutputFilesIn<T>(
+        folderName: string,
+        cb: (file: Uint8Array) => T | Promise<T>
+    ) {
+        const items = await this.instance.fs.readdir("/build/" + folderName);
+        const result = [];
+        for (const iterator of items) {
+            const file = await this.instance.fs.readFile(
+                "/build/" + folderName + "/" + iterator
+            );
+            const res = await cb(file);
+            result.push(res);
+        }
+        return result;
+    }
     async SplitFont(fontName: string) {
         this.runningShell.kill();
         this.terminal.writeln("node index.js split ./font/" + fontName);
