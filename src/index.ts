@@ -1,2 +1,3 @@
+import "./styles/index.css";
 import "xterm/css/xterm.css";
-import "./SystemUI";
+import "./view/CnFontSplit";

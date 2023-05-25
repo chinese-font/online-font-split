@@ -1,18 +1,21 @@
-import { WebContainer, WebContainerProcess } from "@webcontainer/api";
-import { TerminalApp } from "./TerminalApp";
+import { WebContainer } from "@webcontainer/api";
+import { TerminalApp } from "../model/TerminalApp";
 import path from "path-browserify";
 export class SystemApp extends TerminalApp {
-    async init() {
-        this.initTerminal();
+    async init(terminal: HTMLDivElement) {
+        this.initTerminal(terminal);
         this.instance = await WebContainer.boot({});
         await this.instance.fs.mkdir("/build");
+        this.terminal.writeln("下载代码文件中");
         await Promise.all(
             ["/package.json", "/index.js", "/font/白无常可可体-Light.ttf"].map(
                 (i) => {
+                    this.terminal.writeln("下载代码 " + i);
                     return this.syncFileWithRemote(i);
                 }
             )
         );
+        this.terminal.writeln("开始安装依赖 ");
 
         const exitCode = await this.installDependencies();
         if (exitCode !== 0) {
@@ -54,10 +57,18 @@ export class SystemApp extends TerminalApp {
         return items.filter((i) => i.isDirectory());
     }
     async SplitFont(fontName: string) {
+        this.runningShell.kill();
+        this.terminal.writeln("node index.js split ./font/" + fontName);
         const process = await this.run("node", [
             "index.js",
             "split",
             "./font/" + fontName,
         ]);
+
+        return process.exit.then((res) => {
+            this.terminal.writeln("打包结束");
+            this.startShell();
+            return res;
+        });
     }
 }

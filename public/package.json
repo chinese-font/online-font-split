@@ -1,7 +1,11 @@
 {
     "name": "web-font-online",
     "version": "1.0.0",
-    "description": "",
+    "description": "This is the inner code of online font split",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/chinese-font/online-font-split.git"
+    },
     "main": "index.js",
     "type": "module",
     "scripts": {},

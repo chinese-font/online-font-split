@@ -1,15 +1,14 @@
 import { fontSplit } from "@konghayao/cn-font-split";
 import fs from "fs";
 import { Command } from "commander";
-
 import path from "path";
-
 const bundler = async (filePath) => {
-    const destFold = "/build/" + path.basename(filePath);
+    const destFold = "./build/" + path.basename(filePath).split(".")[0];
     console.log(destFold);
     try {
-        await fs.promises.rmdir(destFold, { recursive: true, force: true });
+        await fs.promises.rm(destFold, { recursive: true, force: true });
     } catch (e) {}
+    await fs.promises.mkdir(destFold, { recursive: true, force: true });
     await fontSplit({
         FontPath: filePath,
         destFold,
