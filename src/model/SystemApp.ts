@@ -6,6 +6,7 @@ export class SystemApp extends TerminalApp {
         this.initTerminal(terminal);
         this.instance = await WebContainer.boot({});
         await this.instance.fs.mkdir("/build");
+        await this.instance.fs.mkdir("/font");
         this.terminal.writeln("下载代码文件中");
         await Promise.all(
             ["/package.json", "/index.js"].map((i) => {
