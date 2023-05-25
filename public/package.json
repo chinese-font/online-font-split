@@ -9,6 +9,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@konghayao/cn-font-split": "^3.4.1"
+        "@konghayao/cn-font-split": "^3.4.1",
+        "commander": "^10.0.1"
     }
 }
