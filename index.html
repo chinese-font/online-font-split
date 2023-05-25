@@ -6,10 +6,29 @@
         <title>在线字体分包</title>
     </head>
     <body>
-        <section>
-            <nav id="terminal"></nav>
-            <cn-font-split id="cfs-ui"></cn-font-split>
-        </section>
+        <cn-font-split id="cfs-ui"></cn-font-split>
         <script type="module" src="/src/index.ts"></script>
+        <style>
+            html {
+                height: 100%;
+            }
+            body {
+                margin: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+                background-color: rgb(17 22 27);
+            }
+            #cfs-ui {
+                display: block;
+                margin: auto;
+                padding: 1rem;
+                max-width: 800px;
+                background-color: rgb(29, 41, 53);
+                height: 80%;
+                width: 100%;
+            }
+        </style>
     </body>
 </html>

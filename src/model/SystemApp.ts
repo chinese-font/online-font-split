@@ -8,12 +8,10 @@ export class SystemApp extends TerminalApp {
         await this.instance.fs.mkdir("/build");
         this.terminal.writeln("下载代码文件中");
         await Promise.all(
-            ["/package.json", "/index.js", "/font/白无常可可体-Light.ttf"].map(
-                (i) => {
-                    this.terminal.writeln("下载代码 " + i);
-                    return this.syncFileWithRemote(i);
-                }
-            )
+            ["/package.json", "/index.js"].map((i) => {
+                this.terminal.writeln("下载代码 " + i);
+                return this.syncFileWithRemote(i);
+            })
         );
         this.terminal.writeln("开始安装依赖 ");
 
@@ -58,7 +56,7 @@ export class SystemApp extends TerminalApp {
     }
     async mapOutputFilesIn<T>(
         folderName: string,
-        cb: (file: Uint8Array) => T | Promise<T>
+        cb: (name: string, file: Uint8Array) => T | Promise<T>
     ) {
         const items = await this.instance.fs.readdir("/build/" + folderName);
         const result = [];
@@ -66,7 +64,7 @@ export class SystemApp extends TerminalApp {
             const file = await this.instance.fs.readFile(
                 "/build/" + folderName + "/" + iterator
             );
-            const res = await cb(file);
+            const res = await cb(iterator, file);
             result.push(res);
         }
         return result;

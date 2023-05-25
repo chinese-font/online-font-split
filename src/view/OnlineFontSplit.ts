@@ -1,11 +1,11 @@
-import "./styles/index.css";
-import { LitElement, html } from "lit";
+import { LitElement, html, unsafeCSS } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { SystemApp } from "../model/SystemApp";
-import { DirEnt } from "@webcontainer/api";
+import type { DirEnt } from "@webcontainer/api";
 import { fileOpen, fileSave, supported } from "browser-fs-access";
 import { asyncLock } from "../utils/asyncLock";
 import { sleep } from "../utils/sleep";
+
 if (supported) {
     console.log("Using the File System Access API.");
 } else {
@@ -16,8 +16,11 @@ declare global {
         "cn-font-split": OnlineFontSplit;
     }
 }
+import style from "xterm/css/xterm.css?inline";
+import s from "../styles/index.css?inline";
 @customElement("cn-font-split")
 export class OnlineFontSplit extends LitElement {
+    static styles = [unsafeCSS(style), unsafeCSS(s)];
     @query(".terminal") terminalEl!: HTMLDivElement;
     @property() sys = new SystemApp();
     @state() inputFile: DirEnt<string>[] = [];
@@ -64,7 +67,7 @@ export class OnlineFontSplit extends LitElement {
     }
     renderOutput() {
         return this.outputFile.map((i) => {
-            const download = () => this.bundle(i.name);
+            const download = () => this.DownloadFolder(i.name);
             const deleteFolder = async () => {
                 await this.sys.instance.fs.rm("/build/" + i.name, {
                     force: true,
@@ -93,19 +96,56 @@ export class OnlineFontSplit extends LitElement {
         }
         this.refresh();
     }
+    @asyncLock(function () {
+        console.log("正在下载中，请稍等");
+    })
+    async DownloadFolder(name: string) {
+        const { default: JSZip } = await import("jszip");
+        const zip = new JSZip();
+        const folder = zip.folder(name)!;
+        await this.sys.mapOutputFilesIn(name, (filename, file) => {
+            folder.file(filename, file);
+        });
+        const blob = await zip.generateAsync({ type: "blob" });
+        return fileSave(blob);
+    }
     render() {
         return html`
             <section class="online-font-split">
+                <h3 style="text-align:center">
+                    <a
+                        href="https://github.com/chinese-font/online-font-split"
+                        target="_blank">
+                        🎉中文网字计划——✨在线字体分包器
+                    </a>
+                </h3>
+                <main class="font-file-lists">
+                    <ul>
+                        <h4>
+                            <span> 需要打包的文件 </span>
+                            <span class="btn add-file" @click="${this.addFile}"
+                                >➕添加字体</span
+                            >
+                        </h4>
+                        ${this.renderInput()}
+                    </ul>
+                    <ul>
+                        <h4>打包完成文件</h4>
+                        ${this.renderOutput()}
+                    </ul>
+                </main>
+                <h4 style="text-align:center">命令行</h4>
                 <nav class="terminal"></nav>
-                <ul>
-                    <h1>需要打包的文件</h1>
-                    ${this.renderInput()}
-                    <button @click="${this.addFile}">添加文件</button>
-                </ul>
-                <ul>
-                    <h1>打包完成文件</h1>
-                    ${this.renderOutput()}
-                </ul>
+                <aside>
+                    <a
+                        target="_blank"
+                        href="https://github.com/chinese-font/online-font-split"
+                        >Github</a
+                    >
+                    <a target="_blank" href="https://chinese-font.netlify.app"
+                        >中文网字计划</a
+                    >
+                </aside>
             </section>
         `;
     }
